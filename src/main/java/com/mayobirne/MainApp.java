@@ -1,38 +1,42 @@
-package com.mayobirne;
+package com.mayobirne;/**
+ * Created by Christian on 06.02.2016.
+ */
 
 import javafx.application.Application;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.layout.StackPane;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.io.IOException;
 
 public class MainApp extends Application {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(MainApp.class);
-
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) {
         launch(args);
     }
 
-    public void start(Stage primaryStage) throws Exception {
+    @Override
+    public void start(final Stage primaryStage) throws IOException{
 
-        primaryStage.setTitle("TITLE");
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/mainapp.fxml"));
+        Parent root = loader.load();
 
-        Button btn = new Button("Say 'Hello World'");
-        btn.setOnAction(new EventHandler<ActionEvent>() {
-            public void handle(ActionEvent event) {
-                LOGGER.info("Pressed the Button");
-            }
-        });
+        Controller controller = loader.getController();
+        controller.setHostService(getHostServices());
+        controller.setStage(primaryStage);
 
-        StackPane root = new StackPane();
-        root.getChildren().add(btn);
+        Scene scene = new Scene(root, 500, 450);
+        scene.getStylesheets().add("styles/styles.css");
 
-        primaryStage.setScene(new Scene(root, 300, 250));
+        primaryStage.setTitle("Timetracking Converter");
+        primaryStage.setScene(scene);
         primaryStage.show();
     }
 }
