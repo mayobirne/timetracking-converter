@@ -16,7 +16,7 @@
       <RowConstraints />
    </rowConstraints>
    <children>
-      <Button mnemonicParsing="false" onAction="#openFile" prefHeight="25.0" prefWidth="150.0" text="Upload Interflex File" />
-      <TextField GridPane.rowIndex="1" />
+      <Button mnemonicParsing="false" onAction="#openInterflexFile" prefHeight="25.0" prefWidth="150.0" text="Upload Interflex File" />
+      <TextField text="02" GridPane.rowIndex="1" fx:id="monthTextField" />
    </children>
 </GridPane>
