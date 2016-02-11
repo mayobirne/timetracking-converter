@@ -10,13 +10,23 @@
 <GridPane alignment="center" hgap="10" vgap="10" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.mayobirne.Controller">
    <columnConstraints>
       <ColumnConstraints />
+      <ColumnConstraints />
    </columnConstraints>
    <rowConstraints>
       <RowConstraints />
       <RowConstraints />
+      <RowConstraints />
+      <RowConstraints />
+      <RowConstraints />
+      <RowConstraints />
+      <RowConstraints />
+      <RowConstraints />
+      <RowConstraints />
    </rowConstraints>
    <children>
-      <Button mnemonicParsing="false" onAction="#openInterflexFile" prefHeight="25.0" prefWidth="150.0" text="Upload Interflex File" />
-      <TextField text="02" GridPane.rowIndex="1" fx:id="monthTextField" />
+      <Button mnemonicParsing="false" onAction="#openInterflexFile" prefHeight="25.0" prefWidth="174.0" text="Upload Interflex File" />
+      <ChoiceBox fx:id="monthChoiceBox" prefHeight="25.0" prefWidth="174.0" GridPane.rowIndex="3" />
+      <Button mnemonicParsing="false" onAction="#convertToTimes" prefHeight="25.0" prefWidth="174.0" text="Convert" GridPane.rowIndex="8" />
+      <DatePicker GridPane.rowIndex="7" />
    </children>
 </GridPane>

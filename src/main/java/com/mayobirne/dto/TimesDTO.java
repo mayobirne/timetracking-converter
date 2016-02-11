@@ -1,22 +1,24 @@
 package com.mayobirne.dto;
 
+import java.util.Calendar;
+
 /**
  * Created by Christian on 08.02.2016.
  */
 public class TimesDTO {
 
-    private String date;
+    private Calendar date;
     private String startTime;
     private String endTime;
     private String projectNr;
     private String subNr;
     private String description;
 
-    public String getDate() {
+    public Calendar getDate() {
         return date;
     }
 
-    public void setDate(String date) {
+    public void setDate(Calendar date) {
         this.date = date;
     }
 
