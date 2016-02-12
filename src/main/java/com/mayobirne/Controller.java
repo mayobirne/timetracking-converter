@@ -119,7 +119,9 @@ public class Controller {
                     dto.setDay_WD_DD(day == null || day.isEmpty() ? lastDay : row.getCell(0).getStringCellValue());
                     dto.setStartTime(convertToTimeString(row.getCell(2).getDateCellValue()));
                     dto.setEndTime(convertToTimeString(row.getCell(3).getDateCellValue()));
-                    interflexList.add(dto);
+
+                    if (dto.getEndTime() != null && !dto.getEndTime().isEmpty())
+                        interflexList.add(dto); // TODO Msg or smth
 
                     lastDay = dto.getDay_WD_DD();
                 }
@@ -161,32 +163,32 @@ public class Controller {
             XSSFCell dateCell = newRow.getCell(CellNumbers.DATE_CELL) != null ? newRow.getCell(CellNumbers.DATE_CELL)
                     : newRow.createCell(CellNumbers.DATE_CELL);
             dateCell.setCellStyle(dateCellStyle);
-            dateCell.setCellValue(new GregorianCalendar(2016, 4, rowNr));
+            dateCell.setCellValue(timesDTO.getDate());
 
             XSSFCell startTimeCell = newRow.getCell(CellNumbers.START_TIME_CELL) != null ? newRow.getCell(CellNumbers.START_TIME_CELL)
                     : newRow.createCell(CellNumbers.START_TIME_CELL);
             startTimeCell.setCellStyle(startTimeCellStyle);
-            startTimeCell.setCellValue(HSSFDateUtil.convertTime("12:24:00"));
+            startTimeCell.setCellValue(HSSFDateUtil.convertTime(timesDTO.getStartTime()));
 
             XSSFCell endTimeCell = newRow.getCell(CellNumbers.END_TIME_CELL) != null ? newRow.getCell(CellNumbers.END_TIME_CELL)
                     : newRow.createCell(CellNumbers.END_TIME_CELL);
             endTimeCell.setCellStyle(endTimeCellStyle);
-            endTimeCell.setCellValue(HSSFDateUtil.convertTime("13:24:00"));
+            endTimeCell.setCellValue(HSSFDateUtil.convertTime(timesDTO.getEndTime()));
 
             XSSFCell projectNrCell = newRow.getCell(CellNumbers.PROJECT_NR_CELL) != null ? newRow.getCell(CellNumbers.PROJECT_NR_CELL)
                     : newRow.createCell(CellNumbers.PROJECT_NR_CELL);
             projectNrCell.setCellStyle(projectNrCellStyle);
-            projectNrCell.setCellValue(862355);
+            projectNrCell.setCellValue(timesDTO.getProjectNr());
 
             XSSFCell subNrCell = newRow.getCell(CellNumbers.SUB_NR_CELL) != null ? newRow.getCell(CellNumbers.SUB_NR_CELL)
                     : newRow.createCell(CellNumbers.SUB_NR_CELL);
             subNrCell.setCellStyle(subNrCellStyle);
-            subNrCell.setCellValue(2);
+            subNrCell.setCellValue(timesDTO.getSubNr());
 
             XSSFCell descriptionCell = newRow.getCell(CellNumbers.DESCRIPTION_CELL) != null ? newRow.getCell(CellNumbers.DESCRIPTION_CELL)
                     : newRow.createCell(CellNumbers.DESCRIPTION_CELL);
             descriptionCell.setCellStyle(descriptionCellStyle);
-            descriptionCell.setCellValue("descr");
+            descriptionCell.setCellValue(timesDTO.getDescription());
         }
 
         FileOutputStream fileOut = new FileOutputStream(fileName);
