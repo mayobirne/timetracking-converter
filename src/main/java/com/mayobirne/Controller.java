@@ -2,17 +2,23 @@ package com.mayobirne;
 
 import com.mayobirne.dto.InterflexDTO;
 import com.mayobirne.dto.TimesDTO;
+import com.mayobirne.enums.CategoryNumbers;
 import com.mayobirne.enums.CellNumbers;
 import com.mayobirne.enums.Months;
 import javafx.application.HostServices;
 import javafx.fxml.FXML;
 import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.TextField;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import org.apache.poi.hssf.usermodel.HSSFDateUtil;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
-import org.apache.poi.ss.usermodel.*;
-import org.apache.poi.xssf.usermodel.*;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.xssf.usermodel.XSSFCell;
+import org.apache.poi.xssf.usermodel.XSSFRow;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,8 +27,14 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.nio.file.*;
-import java.util.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.List;
 
 /**
  * Created by Christian on 07.02.2016.
@@ -31,7 +43,10 @@ public class Controller {
 
     private static Logger LOGGER = LoggerFactory.getLogger(Controller.class);
 
-    private static final String TEMPLATE = System.getProperty("user.dir") + "\\src\\main\\resources\\excel\\template.xlsx";
+    private static final String TEMPLATE = System.getProperty("user.dir") + "/src/main/resources/excel/template.xlsx";
+    //private static final String TEMPLATE = System.getProperty("user.dir") + "\\src\\main\\resources\\excel\\template.xlsx";
+
+    private static final Integer PVA_PROJECT_NR = 862355;
 
     private Stage stage;
     private HostServices hostServices;
@@ -39,10 +54,12 @@ public class Controller {
     private File outputFile;
 
     private List<InterflexDTO> interflexList;
-    private Months monthChosen;
 
     @FXML
     private ChoiceBox<Months> monthChoiceBox;
+
+    @FXML
+    private TextField yearTextField;
 
     @FXML
     private void initialize() {
@@ -66,7 +83,6 @@ public class Controller {
 
     @FXML
     protected void convertToTimes() throws IOException, URISyntaxException {
-        monthChosen = monthChoiceBox.getValue();
         generateNewSheet();
     }
 
@@ -94,7 +110,8 @@ public class Controller {
         for (int i = 1; i < rows; i++) {
             XSSFRow row = sheet.getRow(i);
             if (row != null) {
-                if (row.getCell(2).getCellType() != Cell.CELL_TYPE_BLANK) {
+                if (row.getCell(2).getCellType() != Cell.CELL_TYPE_BLANK &&
+                        !row.getCell(1).getStringCellValue().equals("Feiertag")) {
 
                     InterflexDTO dto = new InterflexDTO();
                     String day = row.getCell(0).getStringCellValue();
@@ -109,6 +126,8 @@ public class Controller {
             }
         }
         LOGGER.info("Finished loading Data from Interflex-Excel File.");
+
+        generateNewSheet();
     }
 
     private void generateNewSheet() throws IOException, URISyntaxException {
@@ -128,10 +147,16 @@ public class Controller {
         CellStyle subNrCellStyle = row.getCell(CellNumbers.SUB_NR_CELL).getCellStyle();
         CellStyle descriptionCellStyle = row.getCell(CellNumbers.DESCRIPTION_CELL).getCellStyle();
 
+        Months monthChosen = monthChoiceBox.getValue();
+
         for (int i = 0; i < interflexList.size(); i++) {
 
             int rowNr = i + 1;
-            XSSFRow newRow = sheet.getRow(rowNr);
+            XSSFRow newRow = sheet.getRow(rowNr) != null ? sheet.getRow(rowNr) : sheet.createRow(rowNr);
+
+            TimesDTO timesDTO = interflexToTimesConverter(interflexList.get(i), monthChosen);
+
+            LOGGER.info("Bei Row {}", i);
 
             XSSFCell dateCell = newRow.getCell(CellNumbers.DATE_CELL) != null ? newRow.getCell(CellNumbers.DATE_CELL)
                     : newRow.createCell(CellNumbers.DATE_CELL);
@@ -159,7 +184,7 @@ public class Controller {
             subNrCell.setCellValue(2);
 
             XSSFCell descriptionCell = newRow.getCell(CellNumbers.DESCRIPTION_CELL) != null ? newRow.getCell(CellNumbers.DESCRIPTION_CELL)
-                    : row.createCell(CellNumbers.DESCRIPTION_CELL);
+                    : newRow.createCell(CellNumbers.DESCRIPTION_CELL);
             descriptionCell.setCellStyle(descriptionCellStyle);
             descriptionCell.setCellValue("descr");
         }
@@ -173,35 +198,21 @@ public class Controller {
         hostServices.showDocument(fileName);
     }
 
-    private TimesDTO interflexToTimesConverter(InterflexDTO interflexDTO, String month) {
+    private TimesDTO interflexToTimesConverter(InterflexDTO interflexDTO, Months monthChosen) {
 
         TimesDTO timesDTO = new TimesDTO();
 
         Integer day = Integer.parseInt(interflexDTO.getDay_WD_DD().substring(3, 5));
-        Calendar date = new GregorianCalendar();
+        Calendar date = new GregorianCalendar(Integer.valueOf(yearTextField.getText()), monthChosen.getNumber(), day);
 
-
-//        timesDTO.setDate(interflexDTO.getDay_WD_DD()); // TODO
-
-
-
-
+        timesDTO.setDate(date);
         timesDTO.setStartTime(interflexDTO.getStartTime());
         timesDTO.setEndTime(interflexDTO.getEndTime());
-        timesDTO.setProjectNr("862355");
-        timesDTO.setSubNr("2");
+        timesDTO.setProjectNr(PVA_PROJECT_NR);
+        timesDTO.setSubNr(CategoryNumbers.SOFTWARE_DEVELOPMENT.getNumber());
         timesDTO.setDescription("TestDescription");
 
         return timesDTO;
-    }
-
-    private void autoSizeCells(XSSFSheet sheet) {
-        sheet.autoSizeColumn(0);
-        sheet.autoSizeColumn(1);
-        sheet.autoSizeColumn(2);
-        sheet.autoSizeColumn(3);
-        sheet.autoSizeColumn(4);
-        sheet.autoSizeColumn(5);
     }
 
     private String generateNewFileName() {

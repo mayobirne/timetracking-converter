@@ -10,8 +10,8 @@ public class TimesDTO {
     private Calendar date;
     private String startTime;
     private String endTime;
-    private String projectNr;
-    private String subNr;
+    private Integer projectNr;
+    private Integer subNr;
     private String description;
 
     public Calendar getDate() {
@@ -38,19 +38,19 @@ public class TimesDTO {
         this.endTime = endTime;
     }
 
-    public String getProjectNr() {
+    public Integer getProjectNr() {
         return projectNr;
     }
 
-    public void setProjectNr(String projectNr) {
+    public void setProjectNr(Integer projectNr) {
         this.projectNr = projectNr;
     }
 
-    public String getSubNr() {
+    public Integer getSubNr() {
         return subNr;
     }
 
-    public void setSubNr(String subNr) {
+    public void setSubNr(Integer subNr) {
         this.subNr = subNr;
     }
 
