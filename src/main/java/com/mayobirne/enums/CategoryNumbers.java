@@ -1,8 +1,5 @@
 package com.mayobirne.enums;
 
-/**
- * Created by christian on 12.02.16.
- */
 public enum CategoryNumbers {
 
     DOCUMENTATION ("Specification/Documentation", 1),

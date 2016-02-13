@@ -2,9 +2,6 @@ package com.mayobirne.dto;
 
 import java.util.Calendar;
 
-/**
- * Created by Christian on 08.02.2016.
- */
 public class TimesDTO {
 
     private Calendar date;

@@ -1,8 +1,5 @@
 package com.mayobirne.enums;
 
-/**
- * Created by Christian on 11.02.2016.
- */
 public interface CellNumbers {
 
     Integer DATE_CELL = 0;

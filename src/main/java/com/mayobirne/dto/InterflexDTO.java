@@ -2,9 +2,6 @@ package com.mayobirne.dto;
 
 import java.util.Date;
 
-/**
- * Created by Christian on 07.02.2016.
- */
 public class InterflexDTO {
 
     String day_WD_DD;

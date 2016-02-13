@@ -35,11 +35,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
-/**
- * Created by Christian on 07.02.2016.
- */
 public class Controller {
 
     private static Logger LOGGER = LoggerFactory.getLogger(Controller.class);

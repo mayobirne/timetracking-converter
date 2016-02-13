@@ -1,6 +1,4 @@
-package com.mayobirne;/**
- * Created by Christian on 06.02.2016.
- */
+package com.mayobirne;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
