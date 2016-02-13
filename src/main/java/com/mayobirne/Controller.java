@@ -35,6 +35,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by Christian on 07.02.2016.
@@ -117,12 +118,51 @@ public class Controller {
                     String day = row.getCell(0).getStringCellValue();
 
                     dto.setDay_WD_DD(day == null || day.isEmpty() ? lastDay : row.getCell(0).getStringCellValue());
-                    dto.setStartTime(convertToTimeString(row.getCell(2).getDateCellValue()));
-                    dto.setEndTime(convertToTimeString(row.getCell(3).getDateCellValue()));
 
-                    if (dto.getEndTime() != null && !dto.getEndTime().isEmpty())
-                        interflexList.add(dto); // TODO Msg or smth
 
+
+                    Date startTime = row.getCell(2).getDateCellValue();
+                    Date endTime = row.getCell(3).getDateCellValue();
+
+                    if (endTime != null) {
+
+                        Calendar newStartTime = Calendar.getInstance();
+                        newStartTime.setTime(startTime);
+
+                        Calendar newEndTime = Calendar.getInstance();
+                        newEndTime.setTime(endTime);
+
+                        if (interflexList.size() > 0) {
+                            InterflexDTO lastDto = interflexList.get(interflexList.size() - 1);
+                            if (lastDto.getDay_WD_DD().equals(dto.getDay_WD_DD())) {
+
+                                Calendar lastEndTime = Calendar.getInstance();
+                                lastEndTime.setTime(lastDto.getEndTime());
+                                lastEndTime.add(Calendar.MINUTE, 30);
+
+                                if (lastEndTime.after(newStartTime)) {
+                                    newStartTime.add(Calendar.HOUR, 1);
+                                    newEndTime.add(Calendar.HOUR, 1);
+                                }
+                            }
+                        }
+
+                        Long diff = newEndTime.getTimeInMillis() - newStartTime.getTimeInMillis();
+                        Long diffInMinutes = TimeUnit.MINUTES.convert(diff, TimeUnit.MINUTES);
+
+                        if (diffInMinutes > 6 * 360) {
+
+                        }
+
+
+                        dto.setStartTime(newStartTime.getTime());
+                        dto.setEndTime(newEndTime.getTime());
+                        interflexList.add(dto);
+                    }
+                    else {
+                        // TODO Msg or smth
+                        LOGGER.info("No EndTime set for {}", i);
+                    }
                     lastDay = dto.getDay_WD_DD();
                 }
             }
@@ -208,8 +248,8 @@ public class Controller {
         Calendar date = new GregorianCalendar(Integer.valueOf(yearTextField.getText()), monthChosen.getNumber(), day);
 
         timesDTO.setDate(date);
-        timesDTO.setStartTime(interflexDTO.getStartTime());
-        timesDTO.setEndTime(interflexDTO.getEndTime());
+        timesDTO.setStartTime(convertToTimeString(interflexDTO.getStartTime()));
+        timesDTO.setEndTime(convertToTimeString(interflexDTO.getEndTime()));
         timesDTO.setProjectNr(PVA_PROJECT_NR);
         timesDTO.setSubNr(CategoryNumbers.SOFTWARE_DEVELOPMENT.getNumber());
         timesDTO.setDescription("TestDescription");
