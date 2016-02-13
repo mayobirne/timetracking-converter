@@ -48,6 +48,8 @@ public class Controller {
     //private static final String TEMPLATE = System.getProperty("user.dir") + "\\src\\main\\resources\\excel\\template.xlsx";
 
     private static final Integer PVA_PROJECT_NR = 862355;
+    private static final Integer SIX_HOURS_IN_MILLISECONDS = 6 * 60 * 60 * 1000;
+    private static final Integer ONE_HOUR_IN_MILLISECONDS = 60 * 60 * 1000;
 
     private Stage stage;
     private HostServices hostServices;
@@ -148,18 +150,36 @@ public class Controller {
                         }
 
                         Long diff = newEndTime.getTimeInMillis() - newStartTime.getTimeInMillis();
-                        Long diffInMinutes = TimeUnit.MINUTES.convert(diff, TimeUnit.MINUTES);
 
-                        if (diffInMinutes > 6 * 360) {
+                        if (diff > SIX_HOURS_IN_MILLISECONDS) {
+                            LOGGER.info("mehr als 6h");
+                            Long timeToAdd = diff - SIX_HOURS_IN_MILLISECONDS;
 
+                            newEndTime.setTimeInMillis(newStartTime.getTimeInMillis() + SIX_HOURS_IN_MILLISECONDS);
+                            dto.setStartTime(newStartTime.getTime());
+                            dto.setEndTime(newEndTime.getTime());
+
+                            interflexList.add(dto);
+
+                            InterflexDTO secondInterflexDTO = new InterflexDTO();
+                            secondInterflexDTO.setDay_WD_DD(dto.getDay_WD_DD());
+
+                            Calendar secondStartTime = Calendar.getInstance();
+                            secondStartTime.setTimeInMillis(newEndTime.getTimeInMillis() + ONE_HOUR_IN_MILLISECONDS);
+                            secondInterflexDTO.setStartTime(secondStartTime.getTime());
+
+                            Calendar secondEndTime = Calendar.getInstance();
+                            secondEndTime.setTimeInMillis(secondStartTime.getTimeInMillis() + timeToAdd);
+                            secondInterflexDTO.setEndTime(secondEndTime.getTime());
+
+                            interflexList.add(secondInterflexDTO);
+
+                        } else {
+                            dto.setStartTime(newStartTime.getTime());
+                            dto.setEndTime(newEndTime.getTime());
+                            interflexList.add(dto);
                         }
-
-
-                        dto.setStartTime(newStartTime.getTime());
-                        dto.setEndTime(newEndTime.getTime());
-                        interflexList.add(dto);
-                    }
-                    else {
+                    } else {
                         // TODO Msg or smth
                         LOGGER.info("No EndTime set for {}", i);
                     }
