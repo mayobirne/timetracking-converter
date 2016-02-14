@@ -25,7 +25,7 @@
 
 
     <dependencies>
-    
+
         <!-- MigLayout -->
         <dependency>
             <groupId>com.miglayout</groupId>

@@ -6,10 +6,20 @@ import com.mayobirne.enums.CategoryNumbers;
 import com.mayobirne.enums.CellNumbers;
 import com.mayobirne.enums.Months;
 import javafx.application.HostServices;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.VBox;
+import javafx.scene.text.Font;
+import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 import org.apache.poi.hssf.usermodel.HSSFDateUtil;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
@@ -41,7 +51,6 @@ public class Controller {
     private static Logger LOGGER = LoggerFactory.getLogger(Controller.class);
 
     private static final String TEMPLATE = System.getProperty("user.dir") + "/src/main/resources/excel/template.xlsx";
-    //private static final String TEMPLATE = System.getProperty("user.dir") + "\\src\\main\\resources\\excel\\template.xlsx";
 
     private static final Integer PVA_PROJECT_NR = 862355;
     private static final Integer SIX_HOURS_IN_MILLISECONDS = 6 * 60 * 60 * 1000;
@@ -50,7 +59,7 @@ public class Controller {
     private Stage stage;
     private HostServices hostServices;
 
-    private File outputFile;
+    private File inputFile;
 
     private List<InterflexDTO> interflexList;
 
@@ -63,6 +72,12 @@ public class Controller {
     @FXML
     private void initialize() {
         monthChoiceBox.getItems().setAll(Months.values());
+        Calendar calendar = Calendar.getInstance();
+
+        for (Months month : Months.values()) {
+            if (month.getNumber() == calendar.get(Calendar.MONTH))
+                monthChoiceBox.setValue(month);
+        }
     }
 
     public void setStage(Stage stage) {
@@ -76,8 +91,10 @@ public class Controller {
     @FXML
     protected void openInterflexFile() throws IOException, InvalidFormatException, URISyntaxException {
         FileChooser fileChooser = new FileChooser();
-        outputFile = fileChooser.showOpenDialog(stage);
-        saveInterflexData();
+        inputFile = fileChooser.showOpenDialog(stage);
+
+        if (inputFile != null)
+            saveInterflexData();
     }
 
     @FXML
@@ -89,7 +106,7 @@ public class Controller {
 
         interflexList = new ArrayList<InterflexDTO>();
 
-        XSSFWorkbook wb = new XSSFWorkbook(new FileInputStream(outputFile));
+        XSSFWorkbook wb = new XSSFWorkbook(new FileInputStream(inputFile));
         XSSFSheet sheet = wb.getSheetAt(0);
 
         int rows = sheet.getPhysicalNumberOfRows();
@@ -106,86 +123,115 @@ public class Controller {
 
         String lastDay = "";
 
-        for (int i = 1; i < rows; i++) {
-            XSSFRow row = sheet.getRow(i);
-            if (row != null) {
-                if (row.getCell(2).getCellType() != Cell.CELL_TYPE_BLANK &&
-                        !row.getCell(1).getStringCellValue().equals("Feiertag")) {
+        try {
+            for (int i = 1; i < rows; i++) {
+                XSSFRow row = sheet.getRow(i);
+                if (row != null) {
+                    if (row.getCell(2).getCellType() != Cell.CELL_TYPE_BLANK &&
+                            !row.getCell(1).getStringCellValue().equals("Feiertag")) {
 
-                    InterflexDTO dto = new InterflexDTO();
-                    String day = row.getCell(0).getStringCellValue();
+                        InterflexDTO dto = new InterflexDTO();
+                        String day = row.getCell(0).getStringCellValue();
 
-                    dto.setDay_WD_DD(day == null || day.isEmpty() ? lastDay : row.getCell(0).getStringCellValue());
+                        dto.setDay_WD_DD(day == null || day.isEmpty() ? lastDay : row.getCell(0).getStringCellValue());
 
+                        Date startTime = row.getCell(2).getDateCellValue();
+                        Date endTime = row.getCell(3).getDateCellValue();
 
+                        if (endTime != null) {
 
-                    Date startTime = row.getCell(2).getDateCellValue();
-                    Date endTime = row.getCell(3).getDateCellValue();
+                            Calendar newStartTime = Calendar.getInstance();
+                            newStartTime.setTime(startTime);
 
-                    if (endTime != null) {
+                            Calendar newEndTime = Calendar.getInstance();
+                            newEndTime.setTime(endTime);
 
-                        Calendar newStartTime = Calendar.getInstance();
-                        newStartTime.setTime(startTime);
+                            if (interflexList.size() > 0) {
+                                InterflexDTO lastDto = interflexList.get(interflexList.size() - 1);
+                                if (lastDto.getDay_WD_DD().equals(dto.getDay_WD_DD())) {
 
-                        Calendar newEndTime = Calendar.getInstance();
-                        newEndTime.setTime(endTime);
+                                    Calendar lastEndTime = Calendar.getInstance();
+                                    lastEndTime.setTime(lastDto.getEndTime());
+                                    lastEndTime.add(Calendar.MINUTE, 30);
 
-                        if (interflexList.size() > 0) {
-                            InterflexDTO lastDto = interflexList.get(interflexList.size() - 1);
-                            if (lastDto.getDay_WD_DD().equals(dto.getDay_WD_DD())) {
-
-                                Calendar lastEndTime = Calendar.getInstance();
-                                lastEndTime.setTime(lastDto.getEndTime());
-                                lastEndTime.add(Calendar.MINUTE, 30);
-
-                                if (lastEndTime.after(newStartTime)) {
-                                    newStartTime.add(Calendar.HOUR, 1);
-                                    newEndTime.add(Calendar.HOUR, 1);
+                                    if (lastEndTime.after(newStartTime)) {
+                                        newStartTime.add(Calendar.HOUR, 1);
+                                        newEndTime.add(Calendar.HOUR, 1);
+                                    }
                                 }
                             }
-                        }
 
-                        Long diff = newEndTime.getTimeInMillis() - newStartTime.getTimeInMillis();
+                            Long diff = newEndTime.getTimeInMillis() - newStartTime.getTimeInMillis();
 
-                        if (diff > SIX_HOURS_IN_MILLISECONDS) {
-                            LOGGER.info("mehr als 6h");
-                            Long timeToAdd = diff - SIX_HOURS_IN_MILLISECONDS;
+                            if (diff > SIX_HOURS_IN_MILLISECONDS) {
+                                LOGGER.info("Found more than 6h at ID: {}.", interflexList.size());
+                                Long timeToAdd = diff - SIX_HOURS_IN_MILLISECONDS;
 
-                            newEndTime.setTimeInMillis(newStartTime.getTimeInMillis() + SIX_HOURS_IN_MILLISECONDS);
-                            dto.setStartTime(newStartTime.getTime());
-                            dto.setEndTime(newEndTime.getTime());
+                                newEndTime.setTimeInMillis(newStartTime.getTimeInMillis() + SIX_HOURS_IN_MILLISECONDS);
+                                dto.setStartTime(newStartTime.getTime());
+                                dto.setEndTime(newEndTime.getTime());
 
-                            interflexList.add(dto);
+                                interflexList.add(dto);
 
-                            InterflexDTO secondInterflexDTO = new InterflexDTO();
-                            secondInterflexDTO.setDay_WD_DD(dto.getDay_WD_DD());
+                                InterflexDTO secondInterflexDTO = new InterflexDTO();
+                                secondInterflexDTO.setDay_WD_DD(dto.getDay_WD_DD());
 
-                            Calendar secondStartTime = Calendar.getInstance();
-                            secondStartTime.setTimeInMillis(newEndTime.getTimeInMillis() + ONE_HOUR_IN_MILLISECONDS);
-                            secondInterflexDTO.setStartTime(secondStartTime.getTime());
+                                Calendar secondStartTime = Calendar.getInstance();
+                                secondStartTime.setTimeInMillis(newEndTime.getTimeInMillis() + ONE_HOUR_IN_MILLISECONDS);
+                                secondInterflexDTO.setStartTime(secondStartTime.getTime());
 
-                            Calendar secondEndTime = Calendar.getInstance();
-                            secondEndTime.setTimeInMillis(secondStartTime.getTimeInMillis() + timeToAdd);
-                            secondInterflexDTO.setEndTime(secondEndTime.getTime());
+                                Calendar secondEndTime = Calendar.getInstance();
+                                secondEndTime.setTimeInMillis(secondStartTime.getTimeInMillis() + timeToAdd);
+                                secondInterflexDTO.setEndTime(secondEndTime.getTime());
 
-                            interflexList.add(secondInterflexDTO);
+                                interflexList.add(secondInterflexDTO);
 
+                            } else {
+                                dto.setStartTime(newStartTime.getTime());
+                                dto.setEndTime(newEndTime.getTime());
+                                interflexList.add(dto);
+                            }
                         } else {
-                            dto.setStartTime(newStartTime.getTime());
-                            dto.setEndTime(newEndTime.getTime());
-                            interflexList.add(dto);
+                            generateWarningForNoEndtimeField(i);
+                            LOGGER.info("No EndTime set for row {}.", i);
                         }
-                    } else {
-                        // TODO Msg or smth
-                        LOGGER.info("No EndTime set for {}", i);
+                        lastDay = dto.getDay_WD_DD();
                     }
-                    lastDay = dto.getDay_WD_DD();
                 }
             }
+            LOGGER.info("Finished loading Data from Interflex-Excel File. Added {} to InterflexList.", interflexList.size());
+        } catch (IllegalStateException ex) {
+            generateWarningForNoEndtimeField(1);
+            LOGGER.error("Invalid Format for inputFile");
         }
-        LOGGER.info("Finished loading Data from Interflex-Excel File.");
+    }
 
-        generateNewSheet();
+    private void generateWarningForNoEndtimeField(int rowNumber) {
+        Button button = new Button("OK");
+        button.setCancelButton(true);
+
+        Text text = new Text("No Endtime set for row " + rowNumber + ".");
+        text.setFont(Font.font(15));
+
+        VBox vBox = new VBox();
+        vBox.getChildren().add(text);
+        vBox.getChildren().add(button);
+        vBox.setAlignment(Pos.CENTER);
+        vBox.setPadding(new Insets(25));
+        vBox.setSpacing(15);
+
+        final Stage dialogStage = new Stage();
+        dialogStage.setTitle("Warning");
+        dialogStage.initModality(Modality.WINDOW_MODAL);
+        dialogStage.setScene(new Scene(vBox));
+        dialogStage.show();
+
+        button.setOnAction(new EventHandler<ActionEvent>() {
+            public void handle(ActionEvent event) {
+                LOGGER.info("Closing Notification Window.");
+                dialogStage.close();
+            }
+        });
     }
 
     private void generateNewSheet() throws IOException, URISyntaxException {
@@ -276,7 +322,6 @@ public class Controller {
     private String generateNewFileName() {
         String path = System.getProperty("user.dir");
         return path + "/src/main/resources/tmp/temp" + Long.toString(System.nanoTime()) + ".xlsx";
-//        return path + "\\src\\main\\resources\\tmp\\temp" + Long.toString(System.nanoTime()) + ".xlsx";
     }
 
     private String convertToTimeString(Date date) {

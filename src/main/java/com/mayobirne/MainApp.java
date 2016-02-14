@@ -6,6 +6,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
+import java.io.File;
 import java.io.IOException;
 
 public class MainApp extends Application {
@@ -25,7 +26,13 @@ public class MainApp extends Application {
         controller.setStage(primaryStage);
 
         Scene scene = new Scene(root, 500, 450);
-        scene.getStylesheets().add("styles/styles.css");
+
+        File f = new File("src/main/resources/styles/styles.css");
+        scene.getStylesheets().clear();
+        scene.getStylesheets().add("file:///" + f.getAbsolutePath().replace("\\", "/"));
+
+//        scene.getStylesheets().clear();
+//        scene.getStylesheets().add("styles/styles.css");
 
         primaryStage.setTitle("Timetracking Converter");
         primaryStage.setScene(scene);
