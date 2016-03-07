@@ -1,4 +1,4 @@
-package com.mayobirne;
+package com.mayobirne.controller;
 
 import com.mayobirne.dto.InterflexDTO;
 import com.mayobirne.dto.TimesDTO;
@@ -40,15 +40,11 @@ import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.List;
+import java.util.*;
 
-public class Controller {
+public class ConverterController {
 
-    private static Logger LOGGER = LoggerFactory.getLogger(Controller.class);
+    private static Logger LOGGER = LoggerFactory.getLogger(ConverterController.class);
 
     private static final String TEMPLATE = System.getProperty("user.dir") + "/src/main/resources/excel/template.xlsx";
 
@@ -93,8 +89,9 @@ public class Controller {
         FileChooser fileChooser = new FileChooser();
         inputFile = fileChooser.showOpenDialog(stage);
 
-        if (inputFile != null)
+        if (inputFile != null) {
             saveInterflexData();
+        }
     }
 
     @FXML
@@ -122,11 +119,20 @@ public class Controller {
         }
 
         String lastDay = "";
+        int rowNumber = 0;
 
         try {
-            for (int i = 1; i < rows; i++) {
+            int startNummer = 0;
+            if (sheet.getRow(0).getCell(0).getStringCellValue().equals("Datum")) {
+                startNummer = 1;
+            }
+            for (int i = startNummer; i < rows; i++) {
+                rowNumber = i;
                 XSSFRow row = sheet.getRow(i);
                 if (row != null) {
+                    if (!validateRow(row)) {
+                        throw new IllegalArgumentException();
+                    }
                     if (row.getCell(2).getCellType() != Cell.CELL_TYPE_BLANK &&
                             !row.getCell(1).getStringCellValue().equals("Feiertag")) {
 
@@ -201,9 +207,28 @@ public class Controller {
             }
             LOGGER.info("Finished loading Data from Interflex-Excel File. Added {} to InterflexList.", interflexList.size());
         } catch (IllegalStateException ex) {
-            generateWarningForNoEndtimeField(1);
+            generateWarningForNoEndtimeField(rowNumber);
             LOGGER.error("Invalid Format for inputFile");
+        } catch (IllegalArgumentException ex) {
+            generateWarningForNoEndtimeField(rowNumber);
+            LOGGER.error("Invalid Format for Row ", rowNumber);
         }
+    }
+    private boolean validateRow (XSSFRow row) {
+        if (row.getCell(2).getCellType() == Cell.CELL_TYPE_BLANK ||
+                row.getCell(1).getStringCellValue().equals("Feiertag")) {
+            LOGGER.info("Empty or 'Feiertag' row found at nr: " + row.getRowNum());
+            return true;
+        }
+        try {
+            row.getCell(0).getStringCellValue();
+            row.getCell(2).getDateCellValue();
+            row.getCell(3).getDateCellValue();
+        } catch (RuntimeException e) {
+            LOGGER.error("Found Invalid Format at row: " + row.getRowNum());
+            return false;
+        }
+        return true;
     }
 
     private void generateWarningForNoEndtimeField(int rowNumber) {

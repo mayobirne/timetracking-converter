@@ -1,5 +1,6 @@
 package com.mayobirne;
 
+import com.mayobirne.controller.MainController;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -21,9 +22,9 @@ public class MainApp extends Application {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/mainapp.fxml"));
         Parent root = loader.load();
 
-        Controller controller = loader.getController();
-        controller.setHostService(getHostServices());
-        controller.setStage(primaryStage);
+        MainController controller = loader.getController();
+        controller.setPrimaryStage(primaryStage);
+        controller.setHostServices(getHostServices());
 
         Scene scene = new Scene(root, 500, 450);
 
@@ -31,10 +32,7 @@ public class MainApp extends Application {
         scene.getStylesheets().clear();
         scene.getStylesheets().add("file:///" + f.getAbsolutePath().replace("\\", "/"));
 
-//        scene.getStylesheets().clear();
-//        scene.getStylesheets().add("styles/styles.css");
-
-        primaryStage.setTitle("Timetracking Converter");
+        primaryStage.setTitle("Timetracking-Helper");
         primaryStage.setScene(scene);
         primaryStage.show();
     }

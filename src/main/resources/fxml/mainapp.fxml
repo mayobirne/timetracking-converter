@@ -2,16 +2,11 @@
 
 <?language javascript?>
 
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.ChoiceBox?>
 <?import javafx.scene.layout.GridPane?>
 
-<?import javafx.scene.control.TextField?>
-<GridPane alignment="center" hgap="10" vgap="10" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.mayobirne.Controller">
-   <children>
-      <Button mnemonicParsing="false" onAction="#openInterflexFile" prefHeight="25.0" prefWidth="174.0" text="Upload Interflex File" />
-      <ChoiceBox fx:id="monthChoiceBox" prefHeight="25.0" prefWidth="174.0" GridPane.rowIndex="3" />
-      <TextField fx:id="yearTextField" prefHeight="25.0" prefWidth="174.0" GridPane.rowIndex="4" promptText="Year" />
-      <Button mnemonicParsing="false" onAction="#convertToTimes" prefHeight="25.0" prefWidth="174.0" text="Convert" GridPane.rowIndex="5" />
-   </children>
+<?import javafx.scene.control.Button?>
+<GridPane alignment="center" hgap="10" vgap="10" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.mayobirne.controller.MainController">
+    <children>
+        <Button mnemonicParsing="false" onAction="#openConverter" prefHeight="25.0" prefWidth="174.0" text="Open InterflexToTimesConverter" GridPane.rowIndex="5" />
+    </children>
 </GridPane>
