@@ -19,6 +19,8 @@ public class MainApp extends Application {
     @Override
     public void start(final Stage primaryStage) throws IOException{
 
+        deleteFolder(new File("src/main/resources/tmp"));
+
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/mainapp.fxml"));
         Parent root = loader.load();
 
@@ -35,5 +37,18 @@ public class MainApp extends Application {
         primaryStage.setTitle("Timetracking-Helper");
         primaryStage.setScene(scene);
         primaryStage.show();
+    }
+
+    public static void deleteFolder(File folder) {
+        File[] files = folder.listFiles();
+        if(files!=null) { //some JVMs return null for empty dirs
+            for(File f: files) {
+                if(f.isDirectory()) {
+                    deleteFolder(f);
+                } else {
+                    f.delete();
+                }
+            }
+        }
     }
 }
