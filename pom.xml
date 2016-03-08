@@ -17,7 +17,6 @@
 
     <properties>
         <slf4j.version>1.7.12</slf4j.version>
-        <java.jfxrt>/home/christian/Programme/JavaFXSceneBuilder2.0/runtime/jre/lib/ext/jfxrt.jar</java.jfxrt>
     </properties>
 
     <build>
@@ -44,19 +43,22 @@
                     </archive>
                 </configuration>
             </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.1</version>
+                <configuration>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                </configuration>
+            </plugin>
+
         </plugins>
     </build>
 
 
     <dependencies>
-
-        <dependency>
-            <groupId>com.oracle</groupId>
-            <artifactId>javafx</artifactId>
-            <version>2.0</version>
-            <systemPath>${java.jfxrt}</systemPath>
-            <scope>system</scope>
-        </dependency>
 
         <!-- MigLayout -->
         <dependency>
