@@ -21,6 +21,7 @@ import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import org.apache.commons.lang.Validate;
 import org.apache.poi.hssf.usermodel.HSSFDateUtil;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Cell;
@@ -32,12 +33,11 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.*;
@@ -46,8 +46,6 @@ public class ConverterController {
 
     private static Logger LOGGER = LoggerFactory.getLogger(ConverterController.class);
 
-    private static final String TEMPLATE = System.getProperty("user.dir") + "/src/main/resources/excel/template.xlsx";
-
     private static final Integer PVA_PROJECT_NR = 862355;
     private static final Integer SIX_HOURS_IN_MILLISECONDS = 6 * 60 * 60 * 1000;
     private static final Integer ONE_HOUR_IN_MILLISECONDS = 60 * 60 * 1000;
@@ -55,6 +53,7 @@ public class ConverterController {
     private Stage stage;
     private HostServices hostServices;
 
+    private Path tempPath;
     private File inputFile;
 
     private List<InterflexDTO> interflexList;
@@ -82,6 +81,10 @@ public class ConverterController {
 
     public void setHostService(HostServices hostService) {
         this.hostServices = hostService;
+    }
+
+    public void setTempPath (Path tempPath) {
+        this.tempPath = tempPath;
     }
 
     @FXML
@@ -261,8 +264,11 @@ public class ConverterController {
 
     private void generateNewSheet() throws IOException, URISyntaxException {
 
+        URL templateFile = this.getClass().getClassLoader().getResource("excel/template.xlsx");
+        Validate.notNull(templateFile);
+
         String fileName = generateNewFileName();
-        Files.copy(Paths.get(TEMPLATE), Paths.get(fileName), StandardCopyOption.COPY_ATTRIBUTES);
+        Files.copy(Paths.get(templateFile.toURI()), Paths.get(fileName), StandardCopyOption.COPY_ATTRIBUTES);
 
         XSSFWorkbook wb = new XSSFWorkbook(new FileInputStream(fileName));
         XSSFSheet sheet = wb.getSheetAt(0);
@@ -345,8 +351,7 @@ public class ConverterController {
     }
 
     private String generateNewFileName() {
-        String path = System.getProperty("user.dir");
-        return path + "/src/main/resources/tmp/temp" + Long.toString(System.nanoTime()) + ".xlsx";
+        return tempPath.toString() + "/temp" + Long.toString(System.nanoTime()) + ".xlsx";
     }
 
     private String convertToTimeString(Date date) {
