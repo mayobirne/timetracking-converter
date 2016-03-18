@@ -73,13 +73,13 @@
     <dependencies>
 
         <!--Used for Linux-->
-        <dependency>
+        <!--<dependency>
             <groupId>com.oracle</groupId>
             <artifactId>javafx</artifactId>
             <version>2.0</version>
             <systemPath>${java.jfxrt}</systemPath>
             <scope>system</scope>
-        </dependency>
+        </dependency>-->
 
         <!-- MigLayout -->
         <dependency>

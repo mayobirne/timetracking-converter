@@ -5,14 +5,9 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-import org.apache.commons.lang.Validate;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
-import java.net.URLDecoder;
 import java.nio.file.Path;
 
 /**
@@ -20,11 +15,8 @@ import java.nio.file.Path;
  */
 public class MainController {
 
-    private static Logger LOGGER = LoggerFactory.getLogger(MainController.class);
-
     private Stage primaryStage;
     private HostServices hostServices;
-
     private Path tempPath;
 
     public void openConverter() throws IOException {
