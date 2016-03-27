@@ -35,15 +35,12 @@ public class MainApp extends Application {
         controller.setHostServices(getHostServices());
         controller.setTempPath(tempPath);
 
-        Scene scene = new Scene(root, 500, 450);
-
-        File f = new File("src/main/resources/styles/styles.css");
-        scene.getStylesheets().clear();
-        scene.getStylesheets().add("file:///" + f.getAbsolutePath().replace("\\", "/"));
+        Scene scene = new Scene(root, 400, 250);
 
         primaryStage.setTitle("Timetracking-Helper");
         primaryStage.setScene(scene);
         primaryStage.show();
+        primaryStage.setResizable(false);
     }
 
     private void deleteTempFolderOnShutdown(Path path) {

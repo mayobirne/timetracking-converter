@@ -1,12 +1,86 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?language javascript?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
 
-<?import javafx.scene.layout.GridPane?>
+<BorderPane prefHeight="200.0" prefWidth="400.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.mayobirne.controller.MainController" stylesheets="/styles/styles.css">
 
-<?import javafx.scene.control.Button?>
-<GridPane alignment="center" hgap="10" vgap="10" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.mayobirne.controller.MainController">
-    <children>
-        <Button mnemonicParsing="false" onAction="#openConverter" prefHeight="25.0" prefWidth="174.0" text="Open InterflexToTimesConverter" GridPane.rowIndex="5" />
-    </children>
-</GridPane>
+    <top>
+        <HBox prefHeight="75.0" prefWidth="400.0" BorderPane.alignment="CENTER">
+        </HBox>
+    </top>
+
+    <center>
+        <HBox prefHeight="100.0" prefWidth="400.0" BorderPane.alignment="CENTER">
+            <children>
+
+                <Button contentDisplay="TOP" mnemonicParsing="false" onAction="#openConverter" prefHeight="100.0"
+                        prefWidth="100.0">
+                    <graphic>
+                        <ImageView>
+                            <image>
+                                <Image url="@../images/converter.png"/>
+                            </image>
+                        </ImageView>
+                    </graphic>
+                    <styleClass>buttonNavigationPage</styleClass>
+                    <text>Converter</text>
+                    <tooltip>
+                        <Tooltip text="Convert an Interflex-based XLSX-File into a Times-friendly XLSX"/>
+                    </tooltip>
+                    <HBox.margin>
+                        <Insets left="30.0" right="25.0"/>
+                    </HBox.margin>
+                </Button>
+
+                <Button contentDisplay="TOP" mnemonicParsing="false" onAction="#openConverter" prefHeight="100.0"
+                        prefWidth="100.0">
+                    <graphic>
+                        <ImageView>
+                            <image>
+                                <Image url="@../images/integrate.png"/>
+                            </image>
+                        </ImageView>
+                    </graphic>
+                    <styleClass>buttonNavigationPage</styleClass>
+                    <text>Integrater</text>
+                    <tooltip>
+                        <Tooltip text="Integrate Interflex in a existing Times-Template"/>
+                    </tooltip>
+                    <HBox.margin>
+                        <Insets right="25.0"/>
+                    </HBox.margin>
+                </Button>
+
+                <Button contentDisplay="TOP" mnemonicParsing="false" onAction="#openConverter" prefHeight="100.0"
+                        prefWidth="100.0">
+                    <graphic>
+                        <ImageView>
+                            <image>
+                                <Image url="@../images/verify.png"/>
+                            </image>
+                        </ImageView>
+                    </graphic>
+                    <styleClass>buttonNavigationPage</styleClass>
+                    <text>Verify</text>
+                    <tooltip>
+                        <Tooltip text="Compare an Interflex-File with a Times-Template"/>
+                    </tooltip>
+                    <HBox.margin>
+                        <Insets/>
+                    </HBox.margin>
+                </Button>
+            </children>
+        </HBox>
+    </center>
+
+    <bottom>
+        <HBox prefHeight="75.0" prefWidth="400.0" BorderPane.alignment="CENTER">
+        </HBox>
+    </bottom>
+
+</BorderPane>
