@@ -23,6 +23,8 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
+import java.util.TimeZone;
 
 /**
  * Created by christian on 03.03.16.
@@ -83,17 +85,17 @@ public class ConverterServiceImpl implements ConverterService {
 
                         if (endTime != null) {
 
-                            Calendar newStartTime = Calendar.getInstance();
+                            Calendar newStartTime = Calendar.getInstance(TimeZone.getDefault(), Locale.getDefault());
                             newStartTime.setTime(startTime);
 
-                            Calendar newEndTime = Calendar.getInstance();
+                            Calendar newEndTime = Calendar.getInstance(TimeZone.getDefault(), Locale.getDefault());
                             newEndTime.setTime(endTime);
 
                             if (interflexList.size() > 0) {
                                 InterflexDTO lastDto = interflexList.get(interflexList.size() - 1);
                                 if (lastDto.getDay_WD_DD().equals(dto.getDay_WD_DD())) {
 
-                                    Calendar lastEndTime = Calendar.getInstance();
+                                    Calendar lastEndTime = Calendar.getInstance(TimeZone.getDefault(), Locale.getDefault());
                                     lastEndTime.setTime(lastDto.getEndTime());
                                     lastEndTime.add(Calendar.MINUTE, 30);
 
@@ -119,11 +121,11 @@ public class ConverterServiceImpl implements ConverterService {
                                 InterflexDTO secondInterflexDTO = new InterflexDTO();
                                 secondInterflexDTO.setDay_WD_DD(dto.getDay_WD_DD());
 
-                                Calendar secondStartTime = Calendar.getInstance();
+                                Calendar secondStartTime = Calendar.getInstance(TimeZone.getDefault(), Locale.getDefault());
                                 secondStartTime.setTimeInMillis(newEndTime.getTimeInMillis() + ONE_HOUR_IN_MILLISECONDS);
                                 secondInterflexDTO.setStartTime(secondStartTime.getTime());
 
-                                Calendar secondEndTime = Calendar.getInstance();
+                                Calendar secondEndTime = Calendar.getInstance(TimeZone.getDefault(), Locale.getDefault());
                                 secondEndTime.setTimeInMillis(secondStartTime.getTimeInMillis() + timeToAdd);
                                 secondInterflexDTO.setEndTime(secondEndTime.getTime());
 
